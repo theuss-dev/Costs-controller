@@ -10,15 +10,14 @@ export default async function ProfilePage() {
 
   const { data: currentAccount } = await supabase.from('account').select('*').eq('id', user.id).single()
   if (!currentAccount || !currentAccount.household_id) {
-    return <div className="p-6 text-white">Erro: Sem casa configurada.</div>
+    redirect('/onboarding')
   }
-
-  const TOTAL_LIMIT = currentAccount.monthly_budget || 600
-  const WEEKLY_LIMIT = TOTAL_LIMIT / 4
-  const LIMIT_PER_PERSON = TOTAL_LIMIT / 2 // Simple hardcoded split for now
 
   // Fetch all accounts in household
   const { data: allAccounts } = await supabase.from('account').select('*').eq('household_id', currentAccount.household_id).order('created_at', { ascending: true })
+
+  const TOTAL_LIMIT = (allAccounts || []).reduce((acc, a) => acc + Number(a.contribution || 0), 0)
+  const WEEKLY_LIMIT = TOTAL_LIMIT / 4
   
   // Fetch transactions for the month
   const now = new Date()
@@ -37,7 +36,7 @@ export default async function ProfilePage() {
       initial: acc.name ? acc.name.charAt(0).toUpperCase() : 'U',
       color: colors[idx % colors.length],
       spent,
-      limit: LIMIT_PER_PERSON
+      limit: Number(acc.contribution || 0)
     }
   })
 

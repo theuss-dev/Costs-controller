@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { LogOut, Camera } from "lucide-react";
+import { LogOut, Camera, AlertTriangle, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { logout } from "./actions";
+import { logout, deleteAccount } from "./actions";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,95 +33,170 @@ interface ProfileClientProps {
 export default function ProfileClient({ members, totalLimit, weeklyLimit, userName, userEmail, userInitial }: ProfileClientProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     setAvatarUrl(url);
-    // In a real app, upload this file to Supabase Storage and update the user's avatar.
+  };
+
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await logout();
+  };
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await deleteAccount();
   };
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#18181b] pb-28 px-6 pt-12">
-      <h1 className="text-2xl font-bold text-white tracking-tight mb-8">Perfil</h1>
+    <>
+      <main className="flex flex-col min-h-screen bg-[#18181b] pb-28 px-6 pt-12">
+        <h1 className="text-2xl font-bold text-white tracking-tight mb-8">Perfil</h1>
 
-      <div className="flex flex-col items-center mb-8">
-        <div className="relative">
-          <div className="w-24 h-24 rounded-full bg-orange-500 border-4 border-[#18181b] flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(249,115,22,0.3)]">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-white font-bold text-3xl">{userInitial}</span>
-            )}
-          </div>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orange-500 border-2 border-[#18181b] flex items-center justify-center active:scale-90 transition-transform shadow-lg"
-          >
-            <Camera size={14} className="text-white" strokeWidth={2.5} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
-        </div>
-        <p className="text-white font-semibold mt-3 text-base">{userName}</p>
-        <p className="text-neutral-500 text-xs mt-0.5">{userEmail}</p>
-      </div>
-
-      <div className="flex flex-col gap-3 mb-6">
-        {members.map((m) => {
-          const pct = Math.min((m.spent / m.limit) * 100, 100);
-          return (
-            <div key={m.name} className="flex items-center justify-between p-4 rounded-3xl bg-white/[0.04] backdrop-blur-md border border-white/[0.07]">
-              <div className="flex items-center gap-4">
-                <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-[#18181b]", m.color)}>
-                  <span className="text-white font-bold text-lg">{m.initial}</span>
-                </div>
-                <div>
-                  <p className="text-white font-semibold">{m.name}</p>
-                  <p className="text-xs text-neutral-500 mt-0.5">R$ {fmt(m.spent)} de R$ {fmt(m.limit)}</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-1.5">
-                <span className="text-xs font-bold text-orange-400">{pct.toFixed(0)}%</span>
-                <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full" style={{ width: `${pct}%` }} />
-                </div>
-              </div>
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-orange-500 border-4 border-[#18181b] flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-bold text-3xl">{userInitial}</span>
+              )}
             </div>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-white/[0.04] backdrop-blur-md border border-white/[0.07] rounded-2xl p-4">
-          <p className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider mb-1">Teto Mensal</p>
-          <p className="text-lg font-bold text-white tabular-nums">R$ {fmt(totalLimit)}</p>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orange-500 border-2 border-[#18181b] flex items-center justify-center active:scale-90 transition-transform shadow-lg"
+            >
+              <Camera size={14} className="text-white" strokeWidth={2.5} />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+          <p className="text-white font-semibold mt-3 text-base">{userName}</p>
+          <p className="text-neutral-500 text-xs mt-0.5">{userEmail}</p>
         </div>
-        <div className="bg-white/[0.04] backdrop-blur-md border border-white/[0.07] rounded-2xl p-4">
-          <p className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider mb-1">Limite Semanal</p>
-          <p className="text-lg font-bold text-white tabular-nums">R$ {fmt(weeklyLimit)}</p>
+
+        <div className="flex flex-col gap-3 mb-6">
+          {members.map((m) => {
+            const pct = Math.min((m.spent / m.limit) * 100, 100);
+            return (
+              <div key={m.name} className="flex items-center justify-between p-4 rounded-3xl bg-white/[0.04] backdrop-blur-md border border-white/[0.07]">
+                <div className="flex items-center gap-4">
+                  <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-[#18181b]", m.color)}>
+                    <span className="text-white font-bold text-lg">{m.initial}</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">{m.name}</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">R$ {fmt(m.spent)} de R$ {fmt(m.limit)}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1.5">
+                  <span className="text-xs font-bold text-orange-400">{pct.toFixed(0)}%</span>
+                  <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </div>
 
-      <Link href="/settings" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] active:scale-[0.98] transition-transform mb-6">
-        <span className="text-sm font-medium text-neutral-200">Dados</span>
-        <span className="text-neutral-500 text-xs">Nome e e-mail →</span>
-      </Link>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="bg-white/[0.04] backdrop-blur-md border border-white/[0.07] rounded-2xl p-4">
+            <p className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider mb-1">Teto Mensal</p>
+            <p className="text-lg font-bold text-white tabular-nums">R$ {fmt(totalLimit)}</p>
+          </div>
+          <div className="bg-white/[0.04] backdrop-blur-md border border-white/[0.07] rounded-2xl p-4">
+            <p className="text-[11px] text-neutral-500 font-semibold uppercase tracking-wider mb-1">Limite Semanal</p>
+            <p className="text-lg font-bold text-white tabular-nums">R$ {fmt(weeklyLimit)}</p>
+          </div>
+        </div>
 
-      <form action={logout}>
-        <button type="submit" className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/10 text-red-400 font-semibold text-sm active:scale-[0.98] transition-transform">
-          <LogOut size={16} strokeWidth={2} />
-          Sair da conta
-        </button>
-      </form>
+        <Link href="/settings" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.05] active:scale-[0.98] transition-transform mb-6">
+          <span className="text-sm font-medium text-neutral-200">Dados</span>
+          <span className="text-neutral-500 text-xs">Nome e e-mail →</span>
+        </Link>
 
-      <p className="text-center text-neutral-700 text-[11px] font-medium mt-6">Controle de Casal · v0.1.0</p>
-    </main>
+        <div className="flex flex-col gap-3">
+          <button 
+            onClick={() => setShowLogoutModal(true)}
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/[0.04] border border-white/10 text-neutral-300 font-semibold text-sm active:scale-[0.98] transition-transform hover:bg-white/10"
+          >
+            <LogOut size={16} strokeWidth={2} />
+            Sair da conta
+          </button>
+
+          <button 
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/10 text-red-400 font-semibold text-sm active:scale-[0.98] transition-transform hover:bg-red-500/20"
+          >
+            <Trash2 size={16} strokeWidth={2} />
+            Deletar conta
+          </button>
+        </div>
+
+        <p className="text-center text-neutral-700 text-[11px] font-medium mt-6">Controle de Casal · v0.1.0</p>
+      </main>
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#18181b] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setShowLogoutModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">
+              <X size={20} />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
+              <LogOut size={20} className="text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Sair da conta?</h3>
+            <p className="text-neutral-400 text-sm mb-6">Você precisará fazer login novamente para acessar o controle do seu casal.</p>
+            <form onSubmit={handleLogout} className="flex gap-3">
+              <button type="button" onClick={() => setShowLogoutModal(false)} className="flex-1 py-3 rounded-xl bg-white/5 text-white font-medium text-sm">Cancelar</button>
+              <button disabled={loading} type="submit" className="flex-1 py-3 rounded-xl bg-white text-black font-bold text-sm disabled:opacity-50">
+                {loading ? "Saindo..." : "Sim, Sair"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#1a1111] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setShowDeleteModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">
+              <X size={20} />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+              <AlertTriangle size={24} className="text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Deletar conta permanentemente?</h3>
+            <p className="text-red-400/80 text-sm mb-6 leading-relaxed">
+              ⚠️ <strong>Ação Irreversível.</strong> Isso apagará permanentemente todos os seus dados, histórico, convites e removerá você do seu casal.
+            </p>
+            <form onSubmit={handleDelete} className="flex flex-col gap-3">
+              <button disabled={loading} type="submit" className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm disabled:opacity-50 transition-colors">
+                {loading ? "Deletando..." : "Sim, Deletar Tudo"}
+              </button>
+              <button type="button" onClick={() => setShowDeleteModal(false)} className="w-full py-3 rounded-xl bg-transparent text-neutral-400 font-medium text-sm">
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

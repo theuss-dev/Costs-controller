@@ -18,10 +18,15 @@ export default async function Home() {
   const { data: account } = await supabase.from('account').select('*').eq('id', user.id).single()
   
   if (!account || !account.household_id) {
-    return <div className="text-white p-6">Erro: Conta não vinculada a uma Casa.</div>
+    redirect('/onboarding')
   }
 
-  // 3. Fetch Transactions for the household
+  // 3. Fetch all accounts in household for limit calculation
+  const { data: allAccounts } = await supabase.from('account').select('*').eq('household_id', account.household_id)
+  const TOTAL_LIMIT = (allAccounts || []).reduce((acc, a) => acc + Number(a.contribution || 0), 0)
+  const WEEKLY_LIMIT = TOTAL_LIMIT / 4
+
+  // 4. Fetch Transactions for the household
   const { data: transactions } = await supabase
     .from('transactions')
     .select('*, account(name)')
@@ -29,10 +34,6 @@ export default async function Home() {
     .order('created_at', { ascending: false })
 
   const txs = transactions || []
-
-  // 4. Process Data
-  const TOTAL_LIMIT = account.monthly_budget || 600
-  const WEEKLY_LIMIT = TOTAL_LIMIT / 4
 
   const mapTx = (t: any): TransactionCardProps => ({
     id: String(t.id),

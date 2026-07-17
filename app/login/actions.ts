@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 
+import { translateAuthError } from '@/utils/auth-errors'
+
 export async function login(email: string, pass: string) {
   const supabase = await createClient()
 
@@ -13,7 +15,7 @@ export async function login(email: string, pass: string) {
   })
 
   if (error) {
-    return { error: error.message }
+    return { error: translateAuthError(error.message) }
   }
 
   revalidatePath('/', 'layout')
