@@ -105,7 +105,7 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
 
       <div className="flex-1 overflow-hidden relative">
         {/* STEP 1 */}
-        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-6 transition-all duration-350", step === 1 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8 pointer-events-none")}>
+        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-28 transition-all duration-350", step === 1 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8 pointer-events-none")}>
           <h1 className="text-3xl font-medium text-white tracking-tight mb-1">Quem pagou?</h1>
           <p className="text-neutral-500 text-sm mb-6">Selecione quem realizou o pagamento.</p>
           <div className="flex flex-col gap-4">
@@ -132,7 +132,7 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
         </div>
 
         {/* STEP 2 */}
-        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-6 transition-all duration-350", step === 2 ? "opacity-100 translate-x-0" : step < 2 ? "opacity-0 translate-x-8 pointer-events-none" : "opacity-0 -translate-x-8 pointer-events-none")}>
+        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-28 transition-all duration-350", step === 2 ? "opacity-100 translate-x-0" : step < 2 ? "opacity-0 translate-x-8 pointer-events-none" : "opacity-0 -translate-x-8 pointer-events-none")}>
           <h1 className="text-3xl font-medium text-white tracking-tight mb-1">Qual a categoria?</h1>
           <p className="text-neutral-500 text-sm mb-5">Ajuda a organizar o histórico do casal.</p>
           <div className="grid grid-cols-2 gap-3">
@@ -158,7 +158,7 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
         </div>
 
         {/* STEP 3 */}
-        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-6 transition-all duration-350", step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8 pointer-events-none")}>
+        <div className={cn("absolute inset-0 flex flex-col px-6 pt-7 pb-28 transition-all duration-350", step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8 pointer-events-none")}>
           <h1 className="text-3xl font-medium text-white tracking-tight mb-1">Qual o valor?</h1>
           <p className="text-neutral-500 text-sm mb-5">
             Disponível: <span className="text-white font-semibold">R$ {remainingLimit.toFixed(2).replace(".", ",")}</span>

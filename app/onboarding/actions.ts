@@ -36,13 +36,23 @@ export async function acceptInvite(inviteId: string) {
   if (invErr || !invite) return { error: "Convite não encontrado." }
 
   // 2. Update my account
-  await supabase.from('account').update({ 
+  const { error: accErr } = await supabase.from('account').update({ 
     household_id: invite.household_id,
     contribution: invite.partner_contribution
   }).eq('id', user.id)
 
+  if (accErr) {
+    console.error("Account update error:", accErr);
+    return { error: "Erro ao atualizar a conta." }
+  }
+
   // 3. Update invite status
-  await supabase.from('invites').update({ status: 'accepted' }).eq('id', inviteId)
+  const { error: statusErr } = await supabase.from('invites').update({ status: 'accepted' }).eq('id', inviteId)
+  
+  if (statusErr) {
+    console.error("Invite update error:", statusErr);
+    return { error: "Erro ao aceitar o convite." }
+  }
 
   revalidatePath('/', 'layout')
   redirect('/')
