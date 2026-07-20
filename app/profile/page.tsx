@@ -26,6 +26,13 @@ export default async function ProfilePage() {
   
   const monthTxs = (recentTxs || []).filter(t => new Date(t.created_at).getMonth() === currentMonth)
 
+  // Fetch pending invites
+  const { data: pendingInvites } = await supabase
+    .from('invites')
+    .select('*')
+    .eq('household_id', currentAccount.household_id)
+    .eq('status', 'pending')
+
   const colors = ["bg-orange-500", "bg-purple-500", "bg-emerald-500", "bg-blue-500"]
 
   const members = (allAccounts || []).map((acc, idx) => {
@@ -48,6 +55,7 @@ export default async function ProfilePage() {
       userName={currentAccount.name || ''}
       userEmail={currentAccount.email || ''}
       userInitial={currentAccount.name ? currentAccount.name.charAt(0).toUpperCase() : 'U'}
+      pendingInvites={pendingInvites || []}
     />
   )
 }

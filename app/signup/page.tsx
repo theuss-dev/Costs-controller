@@ -6,6 +6,8 @@ import { signup } from "./actions";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function SignupPage() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,7 +31,7 @@ export default function SignupPage() {
 
     setLoading(true);
 
-    const res = await signup(email, password);
+    const res = await signup(email, password, firstName, lastName);
     if (res?.error) {
       setError(res.error);
     } else if (res?.success) {
@@ -58,6 +60,33 @@ export default function SignupPage() {
           </div>
         ) : (
           <form onSubmit={handleSignup} className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="flex flex-col gap-2 flex-1">
+                <label htmlFor="firstName" className="text-sm font-medium text-neutral-300">Nome</label>
+                <input 
+                  id="firstName" 
+                  type="text" 
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required 
+                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                  placeholder="Seu nome"
+                />
+              </div>
+              <div className="flex flex-col gap-2 flex-1">
+                <label htmlFor="lastName" className="text-sm font-medium text-neutral-300">Sobrenome</label>
+                <input 
+                  id="lastName" 
+                  type="text" 
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required 
+                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                  placeholder="Seu sobrenome"
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className="text-sm font-medium text-neutral-300">Email</label>
               <input 

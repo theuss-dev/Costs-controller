@@ -7,6 +7,8 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { logout, deleteAccount } from "./actions";
 
+import { cancelInvite, sendNewInvite } from "./invite-actions";
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -21,6 +23,13 @@ interface MemberData {
   limit: number;
 }
 
+interface PendingInvite {
+  id: string;
+  receiver_email: string;
+  partner_contribution: number;
+  status: string;
+}
+
 interface ProfileClientProps {
   members: MemberData[];
   totalLimit: number;
@@ -28,20 +37,56 @@ interface ProfileClientProps {
   userName: string;
   userEmail: string;
   userInitial: string;
+  pendingInvites: PendingInvite[];
 }
 
-export default function ProfileClient({ members, totalLimit, weeklyLimit, userName, userEmail, userInitial }: ProfileClientProps) {
+export default function ProfileClient({ members, totalLimit, weeklyLimit, userName, userEmail, userInitial, pendingInvites }: ProfileClientProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  // States para convidar
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteContrib, setInviteContrib] = useState("");
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const formatCurrency = (val: string) => {
+    const numbers = val.replace(/\D/g, "");
+    if (!numbers) return "";
+    const amount = parseInt(numbers) / 100;
+    return amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     setAvatarUrl(url);
+  };
+
+  const handleCancelInvite = async (id: string) => {
+    setLoading(true);
+    await cancelInvite(id);
+    setLoading(false);
+  };
+
+  const handleSendInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteError(null);
+    setLoading(true);
+    const res = await sendNewInvite(inviteEmail, inviteContrib);
+    if (res.error) {
+      setInviteError(res.error);
+      setLoading(false);
+    } else {
+      setShowInviteModal(false);
+      setInviteEmail("");
+      setInviteContrib("");
+      setLoading(false);
+    }
   };
 
   const handleLogout = async (e: React.FormEvent) => {
@@ -89,6 +134,7 @@ export default function ProfileClient({ members, totalLimit, weeklyLimit, userNa
         </div>
 
         <div className="flex flex-col gap-3 mb-6">
+          <h2 className="text-[15px] font-semibold text-neutral-300 mb-1">Seu Casal</h2>
           {members.map((m) => {
             const pct = Math.min((m.spent / m.limit) * 100, 100);
             return (
@@ -111,6 +157,38 @@ export default function ProfileClient({ members, totalLimit, weeklyLimit, userNa
               </div>
             );
           })}
+
+          {/* Pending Invites */}
+          {pendingInvites.map((invite) => (
+            <div key={invite.id} className="flex items-center justify-between p-4 rounded-3xl bg-white/[0.02] backdrop-blur-md border border-white/[0.04] border-dashed">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-dashed border-neutral-600 bg-transparent">
+                  <span className="text-neutral-500 font-bold text-lg">?</span>
+                </div>
+                <div>
+                  <p className="text-neutral-300 font-semibold text-sm">Convite Pendente</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">{invite.receiver_email}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleCancelInvite(invite.id)}
+                disabled={loading}
+                className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold active:scale-95 transition-transform disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          ))}
+
+          {/* Convidar Parceiro (Se houver apenas 1 membro e nenhum convite) */}
+          {members.length === 1 && pendingInvites.length === 0 && (
+            <button 
+              onClick={() => setShowInviteModal(true)}
+              className="w-full flex items-center justify-center gap-2 p-4 rounded-3xl bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold text-sm active:scale-[0.98] transition-transform mt-2"
+            >
+              + Convidar Parceiro(a)
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -193,6 +271,63 @@ export default function ProfileClient({ members, totalLimit, weeklyLimit, userNa
               <button type="button" onClick={() => setShowDeleteModal(false)} className="w-full py-3 rounded-xl bg-transparent text-neutral-400 font-medium text-sm">
                 Cancelar
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#18181b] border border-white/10 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setShowInviteModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white">
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-bold text-white mb-1">Convidar Parceiro(a)</h3>
+            <p className="text-neutral-400 text-sm mb-6">Envie um convite para dividirem os gastos.</p>
+            
+            <form onSubmit={handleSendInvite} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-neutral-300">E-mail do parceiro</label>
+                <input 
+                  type="email" 
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  required 
+                  className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50"
+                  placeholder="parceiro@email.com"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-neutral-300">Contribuição mensal do parceiro</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-medium">R$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    value={formatCurrency(inviteContrib)}
+                    onChange={(e) => setInviteContrib(e.target.value)}
+                    placeholder="0,00"
+                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {inviteError && (
+                <div className="flex items-center gap-2 mt-2 text-xs font-semibold px-3 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
+                  <AlertTriangle size={14} />
+                  {inviteError}
+                </div>
+              )}
+
+              <div className="flex gap-3 mt-2">
+                <button type="button" onClick={() => setShowInviteModal(false)} className="flex-1 py-3.5 rounded-xl bg-white/5 text-white font-medium text-sm">Cancelar</button>
+                <button disabled={loading} type="submit" className="flex-1 py-3.5 rounded-xl bg-orange-500 text-white font-bold text-sm disabled:opacity-50">
+                  {loading ? "Enviando..." : "Enviar Convite"}
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -6,12 +6,19 @@ import { createClient } from '@/utils/supabase/server'
 
 import { translateAuthError } from '@/utils/auth-errors'
 
-export async function signup(email: string, pass: string) {
+export async function signup(email: string, pass: string, firstName: string, lastName: string) {
   const supabase = await createClient()
+
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password: pass,
+    options: {
+      data: {
+        full_name: fullName
+      }
+    }
   })
 
   if (error) {

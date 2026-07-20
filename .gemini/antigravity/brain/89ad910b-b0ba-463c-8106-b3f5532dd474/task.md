@@ -1,0 +1,6 @@
+- [x] Executar query SQL para atualizar o nome do Matheus
+- [x] Atualizar formulário de cadastro (Nome e Sobrenome)
+- [x] Atualizar `signup/actions.ts` para juntar nome e sobrenome
+- [x] Adicionar Server Actions de gerenciamento de convites (`cancelInvite`, `sendNewInvite`)
+- [x] Modificar `profile/page.tsx` para buscar contas do household e convites pendentes
+- [x] Implementar UI de Gestão do Casal em `profile/profile-client.tsx`
