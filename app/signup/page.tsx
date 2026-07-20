@@ -39,7 +39,7 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[#18181b] p-6 relative">
+    <main className="flex flex-1 flex-col items-center justify-center bg-[#18181b] p-6 relative">
       <div className="w-full max-w-sm flex flex-col gap-8">
         <div className="text-center">
           <h1 className="text-3xl font-medium text-white tracking-tight mb-2">Criar Conta</h1>

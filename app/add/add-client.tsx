@@ -90,7 +90,7 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
   };
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden bg-[#18181b]">
+    <main className="flex flex-1 flex-col overflow-hidden bg-[#18181b]">
       <header className="flex items-center justify-between px-6 py-5 border-b border-white/5 shrink-0">
         <button onClick={goBack} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/5 active:scale-95 transition-transform text-white">
           <ChevronLeft size={22} />

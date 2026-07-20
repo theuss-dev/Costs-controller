@@ -58,7 +58,7 @@ export default function ProfileClient({ members, totalLimit, weeklyLimit, userNa
 
   return (
     <>
-      <main className="flex flex-col min-h-screen bg-[#18181b] pb-28 px-6 pt-12">
+      <main className="flex flex-1 flex-col bg-[#18181b] pb-28 px-6 pt-12">
         <h1 className="text-2xl font-bold text-white tracking-tight mb-8">Perfil</h1>
 
         <div className="flex flex-col items-center mb-8">

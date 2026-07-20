@@ -44,7 +44,7 @@ export default function HomeClient({
   const weekPct = Math.min((currentWeekSpent / weeklyLimit) * 100, 100);
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#18181b] pb-24">
+    <main className="flex flex-1 flex-col bg-[#18181b] pb-24">
       {/* ─── Hero Section ───────────────────────────────── */}
       <section
         className={cn(

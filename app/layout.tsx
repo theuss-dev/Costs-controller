@@ -35,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-neutral-100`}
       >
-        <div className="mx-auto max-w-md min-h-[100dvh] bg-neutral-950 relative pb-20 shadow-2xl shadow-black/50 overflow-x-hidden">
+        <div className="mx-auto max-w-md min-h-[100dvh] bg-neutral-950 relative shadow-2xl shadow-black/50 overflow-x-hidden flex flex-col">
           {children}
           <BottomNav />
         </div>

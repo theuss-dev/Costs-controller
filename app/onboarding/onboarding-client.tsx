@@ -51,7 +51,7 @@ export default function OnboardingClient({ invites, userEmail }: { invites: any[
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[#18181b] p-6 relative">
+    <main className="flex flex-1 flex-col items-center justify-center bg-[#18181b] p-6 relative overflow-hidden">
       {/* Sair do App */}
       <button 
         onClick={handleLogout}
