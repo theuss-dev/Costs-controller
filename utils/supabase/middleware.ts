@@ -42,5 +42,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Se o usuário ESTÁ logado, não deve acessar /login ou /signup. Deve ir para a home (e a home cuida de mandar pro onboarding se precisar).
+  if (
+    user && 
+    (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup'))
+  ) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+
   return supabaseResponse
 }

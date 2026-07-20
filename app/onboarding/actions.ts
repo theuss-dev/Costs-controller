@@ -13,25 +13,14 @@ export async function createHousehold(formData: FormData) {
   const partnerContrib = parseFloat(formData.get('partnerContrib') as string) || 0
   const partnerEmail = formData.get('partnerEmail') as string
 
-  // 1. Create household
-  const { data: hh, error: hhErr } = await supabase.from('household').insert({ name: 'Casal de ' + user.email }).select().single()
-  if (hhErr) return { error: "Erro ao criar casal." }
+  // Call RPC to create household, update account and insert invite safely (bypassing RLS issues)
+  const { error: rpcErr } = await supabase.rpc('setup_household', {
+    my_contrib: myContrib,
+    partner_contrib: partnerContrib,
+    partner_email: partnerEmail || null
+  })
 
-  // 2. Update my account
-  await supabase.from('account').update({ 
-    household_id: hh.id,
-    contribution: myContrib 
-  }).eq('id', user.id)
-
-  // 3. Create invite if partnerEmail
-  if (partnerEmail) {
-    await supabase.from('invites').insert({
-      sender_id: user.id,
-      receiver_email: partnerEmail,
-      household_id: hh.id,
-      partner_contribution: partnerContrib
-    })
-  }
+  if (rpcErr) return { error: "Erro ao criar casal." }
 
   revalidatePath('/', 'layout')
   redirect('/')

@@ -13,6 +13,9 @@ function cn(...inputs: ClassValue[]) {
 export default function BottomNav() {
   const pathname = usePathname();
 
+  const hiddenRoutes = ["/login", "/signup", "/onboarding"];
+  if (hiddenRoutes.includes(pathname)) return null;
+
   const links = [
     { name: "Home",    href: "/",       icon: Home        },
     { name: "Add",     href: "/add",    icon: PlusCircle  },
