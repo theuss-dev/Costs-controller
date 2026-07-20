@@ -19,6 +19,8 @@ export async function addTransaction(formData: FormData) {
   const exceedReason = formData.get('exceedReason') as string
   const customReason = formData.get('customReason') as string
 
+  const dateStr = formData.get('date') as string
+
   const amount = parseFloat(amountStr.replace(",", ".")) || 0
 
   let description = category
@@ -30,13 +32,19 @@ export async function addTransaction(formData: FormData) {
     description += ` (Excedeu: ${exceedReason || customReason})`
   }
 
-  const { error } = await supabase.from('transactions').insert({
+  const payload: any = {
     amount,
     category,
     description,
     paid_by: payerId,
     household_id: account.household_id
-  })
+  }
+
+  if (dateStr) {
+    payload.created_at = `${dateStr}T12:00:00Z`
+  }
+
+  const { error } = await supabase.from('transactions').insert(payload)
 
   if (error) {
     console.error("Error inserting transaction", error)

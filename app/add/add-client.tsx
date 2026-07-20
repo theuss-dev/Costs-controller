@@ -171,6 +171,11 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
             <input type="hidden" name="exceedReason" value={exceedReason} />
             <input type="hidden" name="customReason" value={customReason} />
 
+            <div className="flex flex-col gap-2 shrink-0 px-2">
+              <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Data do Gasto</label>
+              <input type="date" name="date" defaultValue={new Date().toISOString().split('T')[0]} max={new Date().toISOString().split('T')[0]} className="bg-white/[0.04] border border-white/[0.08] rounded-2xl px-5 py-3 text-white focus:outline-none focus:border-orange-500/50 transition-colors [&::-webkit-calendar-picker-indicator]:invert" />
+            </div>
+
             <div className={cn("flex flex-col items-center justify-center py-5 rounded-3xl shrink-0", glassCard, wouldExceed && !exceedEnabled && "border-red-500/30")}>
               <span className="text-neutral-500 font-bold text-base mb-1">R$</span>
               <input ref={amountInputRef} name="amount" type="number" inputMode="decimal" step="0.01" min="0.01" placeholder="0,00" value={amount} onChange={(e) => { const val = e.target.value; const dotIdx = val.indexOf("."); if (dotIdx !== -1 && val.length - dotIdx > 3) return; setAmount(val); }} className="w-full bg-transparent text-center text-[58px] font-extrabold tracking-tighter text-white outline-none placeholder:text-neutral-800 [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />

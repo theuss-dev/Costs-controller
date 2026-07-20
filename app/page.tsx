@@ -35,16 +35,31 @@ export default async function Home() {
 
   const txs = transactions || []
 
-  const mapTx = (t: any): TransactionCardProps => ({
-    id: String(t.id),
-    title: t.description,
-    date: format(parseISO(t.created_at), "E, d MMM", { locale: ptBR }),
-    amount: Number(t.amount),
-    type: "expense",
-    category: t.category as any,
-    payerId: t.paid_by,
-    payerName: t.account?.name || "Desconhecido"
-  })
+  const CATEGORY_LABELS: Record<string, string> = {
+    food: "Lanche",
+    restaurant: "Restaurante",
+    transport: "Uber",
+    shopping: "Lazer",
+    other: "Outro"
+  }
+
+  const mapTx = (t: any): TransactionCardProps => {
+    let title = t.description;
+    if (CATEGORY_LABELS[t.description]) {
+      title = CATEGORY_LABELS[t.description];
+    }
+
+    return {
+      id: String(t.id),
+      title,
+      date: format(parseISO(t.created_at), "E, d MMM", { locale: ptBR }),
+      amount: Number(t.amount),
+      type: "expense",
+      category: t.category as any,
+      payerId: t.paid_by,
+      payerName: t.account?.name || "Desconhecido"
+    }
+  }
 
   const allRecent = txs.slice(0, 10).map(mapTx)
 
@@ -61,9 +76,10 @@ export default async function Home() {
       label: `${idx + 1}º Final de Semana`,
       dates: `Semana ${getWeek(weekDate, { weekStartsOn: 1 })}`,
       total,
+      isCurrent: isSameWeek(new Date(), weekDate, { weekStartsOn: 1 }),
       transactions: weekTxs.map(mapTx)
     }
-  }).filter(w => w.total > 0 || w.label.startsWith('1º'))
+  })
 
   const currentWeekDate = new Date()
   const currentWeekTxs = txs.filter(t => isSameWeek(parseISO(t.created_at), currentWeekDate, { weekStartsOn: 1 }))

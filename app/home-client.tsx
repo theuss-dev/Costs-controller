@@ -19,6 +19,7 @@ export interface WeekendData {
   label: string;
   dates: string;
   total: number;
+  isCurrent?: boolean;
   transactions: TransactionCardProps[];
 }
 
@@ -140,7 +141,7 @@ export default function HomeClient({
             {weekends.map((wk, idx) => {
               const wkPct = Math.min((wk.total / weeklyLimit) * 100, 100);
               const isOpen = expandedWeekend === wk.label;
-              const isCurrent = idx === weekends.length - 1;
+              const isCurrent = wk.isCurrent;
               return (
                 <div key={wk.label}>
                   <button
@@ -185,12 +186,16 @@ export default function HomeClient({
                     isOpen ? "max-h-64 opacity-100 mt-1" : "max-h-0 opacity-0 mt-0"
                   )}>
                     <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl px-4 py-3 flex flex-col gap-2">
-                      {wk.transactions.map((t) => (
-                        <div key={t.id} className="flex items-center justify-between">
-                          <span className="text-[12px] text-neutral-400">{t.title}</span>
-                          <span className="text-[12px] text-neutral-300 font-medium tabular-nums">− R$ {fmt(t.amount)}</span>
-                        </div>
-                      ))}
+                      {wk.transactions.length > 0 ? (
+                        wk.transactions.map((t) => (
+                          <div key={t.id} className="flex items-center justify-between">
+                            <span className="text-[12px] text-neutral-400">{t.title}</span>
+                            <span className="text-[12px] text-neutral-300 font-medium tabular-nums">− R$ {fmt(t.amount)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-[12px] text-neutral-500 text-center py-2">Sem gastos neste final de semana.</p>
+                      )}
                     </div>
                   </div>
                 </div>
