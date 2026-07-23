@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signup } from "./actions";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Users } from "lucide-react";
 
 export default function SignupPage() {
   const [firstName, setFirstName] = useState("");
@@ -41,114 +41,133 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-[#18181b] p-6 relative">
-      <div className="w-full max-w-sm flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-medium text-white tracking-tight mb-2">Criar Conta</h1>
-          <p className="text-neutral-500 text-sm">Organize seus gastos em casal</p>
+    <main className="flex flex-1 flex-col items-center justify-center bg-[#121212] p-6 relative min-h-screen">
+      <div className="w-full max-w-[400px] flex flex-col gap-8">
+        
+        {/* Header / Logo */}
+        <div className="flex flex-col items-center pt-6 gap-2">
+          <div className="pb-2">
+            <div className="bg-[#064e3b] flex items-center justify-center rounded-[16px] w-[64px] h-[64px] shadow-sm">
+              <Users size={28} className="text-white" />
+            </div>
+          </div>
+          <h1 className="text-[28px] font-bold text-white tracking-[-0.5px] leading-tight mt-1">
+            <span>Casal</span>
+            <span className="text-[#10b981]">Fi</span>
+          </h1>
+          <p className="text-[#71717a] text-[13px] font-normal tracking-[0.3px]">
+            track what matters together
+          </p>
         </div>
         
         {successMsg ? (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mb-2">
-              <CheckCircle2 size={32} className="text-emerald-400" />
+          <div className="flex flex-col items-center gap-4 text-center mt-4">
+            <div className="w-16 h-16 rounded-full bg-[#10b981]/20 border border-[#10b981]/40 flex items-center justify-center mb-2">
+              <CheckCircle2 size={32} className="text-[#10b981]" />
             </div>
             <p className="text-white font-medium">{successMsg}</p>
-            <Link href="/login" className="mt-4 text-orange-400 font-bold hover:text-orange-300">
+            <Link href="/login" className="mt-4 text-[#10b981] font-bold hover:text-[#059669]">
               Ir para o Login
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSignup} className="flex flex-col gap-4">
+          <form onSubmit={handleSignup} className="flex flex-col gap-3">
+            
             <div className="flex gap-4">
-              <div className="flex flex-col gap-2 flex-1">
-                <label htmlFor="firstName" className="text-sm font-medium text-neutral-300">Nome</label>
+              <div className="flex flex-col gap-1 flex-1">
+                <label htmlFor="firstName" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">Nome</label>
                 <input 
                   id="firstName" 
                   type="text" 
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required 
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-                  placeholder="Seu nome"
+                  className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
+                  placeholder="Nome"
                 />
               </div>
-              <div className="flex flex-col gap-2 flex-1">
-                <label htmlFor="lastName" className="text-sm font-medium text-neutral-300">Sobrenome</label>
+              <div className="flex flex-col gap-1 flex-1">
+                <label htmlFor="lastName" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">Sobrenome</label>
                 <input 
                   id="lastName" 
                   type="text" 
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required 
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-                  placeholder="Seu sobrenome"
+                  className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
+                  placeholder="Sobrenome"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-medium text-neutral-300">Email</label>
+            <div className="flex flex-col gap-1 mt-1">
+              <label htmlFor="email" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">Email</label>
               <input 
                 id="email" 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required 
-                className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-                placeholder="seu@email.com"
+                className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
+                placeholder="you@email.com"
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-sm font-medium text-neutral-300">Senha</label>
+            <div className="flex flex-col gap-1 mt-1">
+              <label htmlFor="password" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">Senha</label>
               <input 
                 id="password" 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
-                className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
                 placeholder="••••••••"
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-neutral-300">Confirmar Senha</label>
+            <div className="flex flex-col gap-1 mt-1">
+              <label htmlFor="confirmPassword" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">Confirmar Senha</label>
               <input 
                 id="confirmPassword" 
                 type="password" 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required 
-                className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 mt-2 text-xs font-semibold px-3 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
-                <AlertTriangle size={14} />
+              <div className="flex items-center gap-2 mt-2 text-[13px] font-semibold px-4 py-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                <AlertTriangle size={16} className="shrink-0" />
                 {error}
               </div>
             )}
 
-            <div className="flex flex-col gap-3 mt-4">
+            <div className="pt-4">
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] disabled:opacity-50"
+                className="w-full flex items-center justify-center bg-[#059669] hover:bg-[#047857] text-white font-semibold text-[15px] py-4 rounded-lg transition-colors shadow-[0px_4px_7px_rgba(5,150,105,0.4)] disabled:opacity-50 h-[54px]"
               >
-                {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Criar Conta"}
+                {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Create Account"}
               </button>
-              <Link 
-                href="/login"
-                className="w-full text-center text-neutral-400 text-sm hover:text-white transition-colors mt-2"
-              >
-                Já tem uma conta? <span className="text-orange-400 font-bold">Faça login</span>
-              </Link>
             </div>
           </form>
+        )}
+
+        {/* Footer */}
+        {!successMsg && (
+          <div className="text-center mt-2">
+            <p className="text-[#71717a] text-[13px]">
+              Already have an account?{" "}
+              <Link href="/login" className="text-[#10b981] font-medium hover:underline">
+                Login
+              </Link>
+            </p>
+          </div>
         )}
       </div>
     </main>

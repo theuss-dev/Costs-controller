@@ -3,27 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { login } from "./actions";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, Users } from "lucide-react";
 
 export default function LoginPage() {
-  const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      setError("Por favor, insira seu email.");
-      return;
-    }
-    setError(null);
-    setStep(2);
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Por favor, preencha todos os campos.");
+      return;
+    }
+    
     setError(null);
     setLoading(true);
 
@@ -35,91 +29,85 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-[#18181b] p-6 relative">
-      <div className="w-full max-w-sm flex flex-col gap-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-medium text-white tracking-tight mb-2">Entrar</h1>
-          <p className="text-neutral-500 text-sm">Acesse o controle do casal</p>
+    <main className="flex flex-1 flex-col items-center justify-center bg-[#121212] p-6 relative min-h-screen">
+      <div className="w-full max-w-[400px] flex flex-col gap-8">
+        
+        {/* Header / Logo */}
+        <div className="flex flex-col items-center pt-6 gap-2">
+          <div className="pb-2">
+            <div className="bg-[#064e3b] flex items-center justify-center rounded-[16px] w-[64px] h-[64px] shadow-sm">
+              <Users size={28} className="text-white" />
+            </div>
+          </div>
+          <h1 className="text-[28px] font-bold text-white tracking-[-0.5px] leading-tight mt-1">
+            <span>Casal</span>
+            <span className="text-[#10b981]">Fi</span>
+          </h1>
+          <p className="text-[#71717a] text-[13px] font-normal tracking-[0.3px]">
+            track what matters together
+          </p>
         </div>
         
-        {step === 1 ? (
-          <form onSubmit={handleNext} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-medium text-neutral-300">Email</label>
-              <input 
-                id="email" 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required 
-                autoFocus
-                className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-                placeholder="seu@email.com"
-              />
-            </div>
+        {/* Form */}
+        <form onSubmit={handleLogin} className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">
+              Email
+            </label>
+            <input 
+              id="email" 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+              autoFocus
+              className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
+              placeholder="you@email.com"
+            />
+          </div>
 
-            {error && (
-              <div className="flex items-center gap-2 mt-2 text-xs font-semibold px-3 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
-                <AlertTriangle size={14} />
-                {error}
-              </div>
-            )}
-            
-            <div className="flex flex-col gap-3 mt-4">
-              <button 
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)]"
-              >
-                Continuar <ArrowRight size={18} />
-              </button>
-              <Link 
-                href="/signup"
-                className="w-full text-center bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 font-medium py-3.5 rounded-xl transition-all"
-              >
-                Criar conta
-              </Link>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="password" className="text-sm font-medium text-neutral-300">Senha</label>
-                <button type="button" onClick={() => setStep(1)} className="text-xs text-orange-400 hover:text-orange-300">
-                  Alterar email
-                </button>
-              </div>
-              <p className="text-xs text-neutral-500 mb-2">{email}</p>
-              <input 
-                id="password" 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-                autoFocus
-                className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
+          <div className="flex flex-col gap-1 mt-1">
+            <label htmlFor="password" className="text-[#a1a1aa] text-[13px] font-medium tracking-[0.2px] mb-1">
+              Password
+            </label>
+            <input 
+              id="password" 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required 
+              className="w-full bg-[#1e1e21] border border-white/10 rounded-lg px-[18px] py-[16px] text-[15px] text-white placeholder:text-white/50 focus:outline-none focus:border-[#10b981]/50 transition-colors h-[54px]"
+              placeholder="••••••••"
+            />
+          </div>
 
-            {error && (
-              <div className="flex items-center gap-2 mt-2 text-xs font-semibold px-3 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
-                <AlertTriangle size={14} />
-                {error}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-3 mt-4">
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] disabled:opacity-50"
-              >
-                {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Entrar"}
-              </button>
+          {error && (
+            <div className="flex items-center gap-2 mt-2 text-[13px] font-semibold px-4 py-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+              <AlertTriangle size={16} className="shrink-0" />
+              {error}
             </div>
-          </form>
-        )}
+          )}
+          
+          <div className="pt-4">
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center bg-[#059669] hover:bg-[#047857] text-white font-semibold text-[15px] py-4 rounded-lg transition-colors shadow-[0px_4px_7px_rgba(5,150,105,0.4)] disabled:opacity-50 h-[54px]"
+            >
+              {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Enter"}
+            </button>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="text-center mt-2">
+          <p className="text-[#71717a] text-[13px]">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-[#10b981] font-medium hover:underline">
+              Create Account
+            </Link>
+          </p>
+        </div>
       </div>
     </main>
   );
