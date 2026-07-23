@@ -221,7 +221,7 @@ export default function AddClient({ accounts, weeklyLimit, remainingLimit }: Add
             </div>
           </div>
 
-          <form action={addTransaction} onSubmit={() => setIsSubmitting(true)} className="flex flex-col flex-1 gap-4 min-h-0">
+          <form action={async (fd) => { await addTransaction(fd) }} onSubmit={() => setIsSubmitting(true)} className="flex flex-col flex-1 gap-4 min-h-0">
             <input type="hidden" name="payerId" value={payer || ""} />
             <input type="hidden" name="categoryId" value={categoryId || ""} />
             <input type="hidden" name="customCategory" value="" />
