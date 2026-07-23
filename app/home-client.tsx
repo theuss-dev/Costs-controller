@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import TransactionCard from "@/components/TransactionCard";
 import TransactionDetailModal from "@/components/TransactionDetailModal";
+import WeekendDetailModal from "@/components/WeekendDetailModal";
 import { type TransactionCardProps } from "@/components/TransactionCard";
-import { Plus, BarChart2 } from "lucide-react";
+import { Plus, Bell, Utensils, Car, Ticket, ShoppingBag, Receipt } from "lucide-react";
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -29,6 +29,7 @@ interface HomeClientProps {
   weekends: WeekendData[];
   allRecent: TransactionCardProps[];
   userInitial: string;
+  householdNames?: string;
 }
 
 export default function HomeClient({
@@ -37,195 +38,166 @@ export default function HomeClient({
   weekends,
   allRecent,
   userInitial,
+  householdNames = "Você & Parceiro",
 }: HomeClientProps) {
-  const [heroExpanded, setHeroExpanded] = useState(false);
   const [selectedTx, setSelectedTx] = useState<TransactionCardProps | null>(null);
-  const [expandedWeekend, setExpandedWeekend] = useState<string | null>(null);
+  const [selectedWeekend, setSelectedWeekend] = useState<WeekendData | null>(null);
+  const [showWeekend, setShowWeekend] = useState(false);
 
-  const weekPct = Math.min((currentWeekSpent / weeklyLimit) * 100, 100);
+  const handleOpenWeekend = (wk: WeekendData) => {
+    setSelectedWeekend(wk);
+    setShowWeekend(true);
+  };
+
+  const handleCloseWeekend = () => {
+    setShowWeekend(false);
+    setTimeout(() => setSelectedWeekend(null), 300);
+  };
+
+  const available = weeklyLimit - currentWeekSpent;
+  const isOverLimit = available < 0;
+  const absAvailable = Math.abs(available);
+  const pctSpent = Math.min((currentWeekSpent / weeklyLimit) * 100, 100);
+
+  const getCategoryIcon = (category?: string) => {
+    switch (category) {
+      case "food": return <Utensils size={18} className="text-[#10b981]" />;
+      case "transport": return <Car size={18} className="text-[#10b981]" />;
+      case "leisure": return <Ticket size={18} className="text-[#10b981]" />;
+      case "groceries": return <ShoppingBag size={18} className="text-[#10b981]" />;
+      default: return <Receipt size={18} className="text-[#10b981]" />;
+    }
+  };
 
   return (
-    <main className="flex flex-1 flex-col bg-[#18181b] pb-24">
-      {/* ─── Hero Section ───────────────────────────────── */}
-      <section
-        className={cn(
-          "relative w-full bg-[#1c1c1f] px-6 pt-12 border-b border-orange-500/20",
-          "shadow-[0_20px_50px_rgba(249,115,22,0.15)] z-10",
-          "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
-          heroExpanded ? "rounded-b-[32px] pb-2" : "rounded-b-[40px] pb-8"
-        )}
-      >
-        {/* Glow laranja */}
-        <div
-          className={cn(
-            "absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-orange-500/20 to-transparent rounded-b-[inherit] pointer-events-none transition-opacity duration-500",
-            heroExpanded ? "opacity-0" : "opacity-100"
-          )}
-        />
-
-        {/* ── Header ── */}
-        <div className="flex justify-between items-center mb-8 relative z-10">
-          <Link href="/profile" className="w-12 h-12 rounded-full bg-orange-500 border-2 border-white/10 flex items-center justify-center active:scale-90 transition-transform">
-            <span className="text-white font-bold">{userInitial}</span>
-          </Link>
-
-          <button
-            onClick={() => setHeroExpanded((v) => !v)}
-            className={cn(
-              "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold",
-              "border transition-all duration-300 active:scale-95",
-              "backdrop-blur-md",
-              heroExpanded
-                ? "bg-orange-500/20 border-orange-500/50 text-orange-300"
-                : "bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10 hover:text-white"
-            )}
-            style={{
-              boxShadow: heroExpanded
-                ? "0 0 16px rgba(249,115,22,0.25), inset 0 1px 0 rgba(255,255,255,0.1)"
-                : "inset 0 1px 0 rgba(255,255,255,0.05)",
-            }}
-          >
-            <BarChart2 size={13} strokeWidth={2.5} />
-            {heroExpanded ? "Ocultar" : "Ver mês"}
+    <main className="flex flex-1 flex-col bg-[#121212] min-h-screen pb-32">
+      
+      {/* Header */}
+      <header className="px-6 pt-12 pb-6 flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-[#71717a] text-[13px] font-medium tracking-[0.2px]">Good morning</span>
+          <h1 className="text-white text-[19px] font-bold tracking-[-0.5px]">{householdNames}</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="relative">
+            <Bell size={20} className="text-[#71717a]" />
+            {/* Optional badge */}
+            <span className="absolute top-0 right-1 w-2 h-2 bg-[#10b981] rounded-full border-2 border-[#121212]"></span>
           </button>
-        </div>
-
-        {/* Valor central */}
-        <div className="flex flex-col items-center justify-center relative z-10 mb-6">
-          <span className="text-neutral-400 font-medium tracking-wide text-sm mb-1">Gasto desta semana</span>
-          <div className="text-[52px] font-medium tracking-tight text-white flex items-baseline gap-1 leading-none">
-            <span className="text-2xl text-neutral-400 mb-1">R$</span>
-            {fmt(currentWeekSpent)}
-          </div>
-          <span className="text-neutral-500 text-xs font-semibold tracking-widest mt-2">
-            LIMITE SEMANAL R$ {fmt(weeklyLimit)}
-          </span>
-        </div>
-
-        {/* Avatares + CTA */}
-        <div className="flex flex-col items-center gap-5 relative z-10">
-          <div className="flex items-center justify-center bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-            <span className="text-white/80 font-semibold text-xs">
-              {weekPct.toFixed(0)}% da semana
-            </span>
-          </div>
-
-          <Link
-            href="/add"
-            className="w-full relative flex items-center justify-center gap-2 overflow-hidden rounded-[18px] py-4 text-sm font-bold text-white active:scale-[0.97] transition-all duration-200 select-none"
-            style={{
-              background: "linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)",
-              boxShadow: "0 4px 0px #7c2d12, 0 8px 24px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
-            }}
-          >
-            <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-            <Plus size={18} strokeWidth={2.5} />
-            Adicionar Gasto
+          <Link href="/profile" className="w-[38px] h-[38px] rounded-full bg-[#064e3b] flex items-center justify-center border-[1.5px] border-white/10 active:scale-95 transition-transform">
+            <span className="text-white text-[13px] font-bold">{userInitial}</span>
           </Link>
         </div>
+      </header>
 
-        {/* ── Painel expansível dos finais de semana ── */}
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
-            heroExpanded ? "max-h-[700px] opacity-100 mt-4" : "max-h-0 opacity-0 mt-0"
-          )}
-        >
-          <div className="border-t border-white/5 pt-4 flex flex-col gap-2">
-            <p className="text-[11px] text-neutral-600 font-medium text-center mb-1">
-              Clique em uma semana para ver os gastos
-            </p>
-            {weekends.length === 0 && (
-              <p className="text-center text-sm text-neutral-500 py-4">Nenhum gasto este mês ainda.</p>
-            )}
-            {weekends.map((wk, idx) => {
-              const wkPct = Math.min((wk.total / weeklyLimit) * 100, 100);
-              const isOpen = expandedWeekend === wk.label;
-              const isCurrent = wk.isCurrent;
-              return (
-                <div key={wk.label}>
-                  <button
-                    onClick={() => setExpandedWeekend(isOpen ? null : wk.label)}
-                    className="w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-4 active:scale-[0.98] transition-all duration-200 text-left"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex flex-col items-start gap-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[13px] font-semibold text-white">{wk.label}</p>
-                          {isCurrent && (
-                            <span className="px-1.5 py-0.5 rounded-md bg-orange-500/20 text-orange-400 text-[9px] font-bold uppercase tracking-wider border border-orange-500/20">
-                              Atual
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-neutral-500">{wk.dates}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "text-sm font-bold tabular-nums",
-                          wkPct >= 100 ? "text-red-400" : wkPct >= 80 ? "text-amber-400" : "text-orange-300"
-                        )}>
-                          R$ {fmt(wk.total)}
-                        </span>
-                        <span className={cn(
-                          "text-neutral-600 transition-transform duration-300 text-xs",
-                          isOpen && "rotate-180"
-                        )}>▾</span>
-                      </div>
-                    </div>
-                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className={cn("h-full rounded-full transition-all duration-700", wkPct >= 100 ? "bg-red-500" : "bg-gradient-to-r from-orange-400 to-orange-500")}
-                        style={{ width: `${wkPct}%` }}
-                      />
-                    </div>
-                  </button>
-
-                  <div className={cn(
-                    "overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                    isOpen ? "max-h-64 opacity-100 mt-1" : "max-h-0 opacity-0 mt-0"
-                  )}>
-                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl px-4 py-3 flex flex-col gap-2">
-                      {wk.transactions.length > 0 ? (
-                        wk.transactions.map((t) => (
-                          <div key={t.id} className="flex items-center justify-between">
-                            <span className="text-[12px] text-neutral-400">{t.title}</span>
-                            <span className="text-[12px] text-neutral-300 font-medium tabular-nums">− R$ {fmt(t.amount)}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-[12px] text-neutral-500 text-center py-2">Sem gastos neste final de semana.</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+      {/* Main Card */}
+      <section className="px-6 mb-8">
+        <div className="bg-[#242427] border-[1.87px] border-white/5 rounded-[16px] p-5 shadow-[0px_4px_24px_-8px_rgba(0,0,0,0.5)]">
+          <p className="text-[#a1a1aa] text-[13px] font-medium mb-1">Available this Weekend</p>
+          <h2 className={cn("text-[32px] font-bold tracking-[-1px] mb-4", isOverLimit ? "text-red-500" : "text-[#10b981]")}>
+            {isOverLimit ? "- " : ""}R$ {fmt(absAvailable)}
+          </h2>
+          
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between text-[11px] font-medium">
+              <span className="text-[#71717a]">Spent: <span className="text-white">R$ {fmt(currentWeekSpent)}</span></span>
+              <span className="text-[#71717a]">Limit: <span className="text-white">R$ {fmt(weeklyLimit)}</span></span>
+            </div>
+            <div className="h-1.5 w-full bg-[#1e1e21] rounded-full overflow-hidden">
+              <div 
+                className={cn("h-full rounded-full transition-all duration-500", isOverLimit ? "bg-red-500" : "bg-[#10b981]")} 
+                style={{ width: `${pctSpent}%` }} 
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Transações Recentes ───────────────────────── */}
-      <div
-        className={cn(
-          "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden",
-          heroExpanded ? "opacity-0 max-h-0" : "opacity-100 max-h-[800px]"
-        )}
-      >
-        <section className="px-6 pt-8 flex flex-col gap-3">
-          <h2 className="text-[15px] font-semibold text-neutral-300 mb-1">Transações Recentes</h2>
-          <div className="flex flex-col">
-            {allRecent.length === 0 && (
-              <p className="text-sm text-neutral-500">Sem transações recentes.</p>
-            )}
-            {allRecent.map((tx) => (
-              <TransactionCard key={tx.id} {...tx} onClick={() => setSelectedTx(tx)} />
-            ))}
-          </div>
-        </section>
+      {/* Previous Weekends (Horizontal Scroll) */}
+      <section className="mb-8">
+        <div className="px-6 mb-3">
+          <h3 className="text-[#71717a] text-[11px] font-medium tracking-[0.8px] uppercase">Previous Weekends</h3>
+        </div>
+        <div className="flex overflow-x-auto gap-3 px-6 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          {weekends.length === 0 && (
+            <p className="text-[13px] text-[#71717a]">Nenhum final de semana registrado.</p>
+          )}
+          {weekends.map((wk) => {
+            const wkAvailable = weeklyLimit - wk.total;
+            const wkIsOverLimit = wkAvailable < 0;
+            const wkPct = Math.min((wk.total / weeklyLimit) * 100, 100);
+            const shortLabel = wk.label.replace('º Final de Semana', 'º Wknd').replace('1º', 'Wknd 1').replace('2º', 'Wknd 2').replace('3º', 'Wknd 3').replace('4º', 'Wknd 4');
+            
+            return (
+              <div 
+                key={wk.label} 
+                onClick={() => handleOpenWeekend(wk)}
+                className="flex-none w-[140px] bg-[#242427] border-[1.87px] border-white/5 rounded-[12px] p-3 snap-center cursor-pointer hover:border-white/10 transition-colors active:scale-95"
+              >
+                <p className="text-white text-[13px] font-semibold mb-1 truncate">{shortLabel}</p>
+                <p className={cn("text-[15px] font-bold mb-3", wkIsOverLimit ? "text-red-500" : "text-[#10b981]")}>
+                  {wkIsOverLimit ? "- " : ""}R$ {fmt(Math.abs(wkAvailable))}
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between text-[9px] font-medium">
+                    <span className="text-[#71717a]">Spent</span>
+                    <span className="text-white">{fmt(wk.total)}</span>
+                  </div>
+                  <div className="h-1 w-full bg-[#1e1e21] rounded-full overflow-hidden">
+                    <div 
+                      className={cn("h-full rounded-full", wkIsOverLimit ? "bg-red-500" : "bg-[#10b981]")} 
+                      style={{ width: `${wkPct}%` }} 
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Recent Expenses */}
+      <section className="px-6 flex flex-col gap-3">
+        <h3 className="text-[#71717a] text-[11px] font-medium tracking-[0.8px] uppercase">Recent Expenses</h3>
+        <div className="flex flex-col gap-2">
+          {allRecent.length === 0 && (
+            <p className="text-[13px] text-[#71717a]">Sem transações recentes.</p>
+          )}
+          {allRecent.map((tx) => (
+            <div 
+              key={tx.id} 
+              onClick={() => setSelectedTx(tx)}
+              className="flex items-center justify-between p-4 bg-[#242427] border-[1.87px] border-white/5 rounded-[16px] cursor-pointer hover:border-white/10 transition-colors active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-[42px] h-[42px] rounded-[10px] bg-[#064e3b] flex items-center justify-center shrink-0">
+                  {getCategoryIcon(tx.category)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-white text-[14px] font-semibold">{tx.title}</span>
+                  <span className="text-[#71717a] text-[12px]">{tx.category || "Outros"} • {tx.payerName}</span>
+                </div>
+              </div>
+              <span className="text-white text-[14px] font-bold tracking-[-0.2px]">
+                − R$ {fmt(tx.amount)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAB - Floating Action Button */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
+        <Link 
+          href="/add"
+          className="w-14 h-14 bg-[#059669] rounded-full flex items-center justify-center shadow-[0px_4px_16px_rgba(5,150,105,0.5)] hover:bg-[#047857] active:scale-95 transition-all"
+        >
+          <Plus size={24} className="text-white" strokeWidth={2.5} />
+        </Link>
       </div>
 
       <TransactionDetailModal tx={selectedTx} onClose={() => setSelectedTx(null)} />
+      <WeekendDetailModal weekend={selectedWeekend} isOpen={showWeekend} weeklyLimit={weeklyLimit} onClose={handleCloseWeekend} />
     </main>
   );
 }

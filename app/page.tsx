@@ -26,6 +26,16 @@ export default async function Home() {
   const TOTAL_LIMIT = (allAccounts || []).reduce((acc, a) => acc + Number(a.contribution || 0), 0)
   const WEEKLY_LIMIT = TOTAL_LIMIT / 4
 
+  let householdNames = "Você & Parceiro"
+  if (allAccounts && allAccounts.length > 0) {
+    const names = allAccounts.map(a => a.name ? a.name.split(' ')[0] : 'Você');
+    if (names.length === 1) {
+      householdNames = `${names[0]} & Parceiro`;
+    } else {
+      householdNames = names.join(' & ');
+    }
+  }
+
   // 4. Fetch Transactions for the household
   const { data: transactions } = await supabase
     .from('transactions')
@@ -94,6 +104,7 @@ export default async function Home() {
       weekends={weekends}
       allRecent={allRecent}
       userInitial={userInitial}
+      householdNames={householdNames}
     />
   )
 }

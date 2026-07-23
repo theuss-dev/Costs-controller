@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import BottomNav from "@/components/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +36,6 @@ export default function RootLayout({
       >
         <div className="mx-auto max-w-md min-h-[100dvh] bg-neutral-950 relative shadow-2xl shadow-black/50 overflow-x-hidden flex flex-col">
           {children}
-          <BottomNav />
         </div>
       </body>
     </html>

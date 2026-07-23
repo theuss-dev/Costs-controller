@@ -21,7 +21,9 @@ export async function addTransaction(formData: FormData) {
 
   const dateStr = formData.get('date') as string
 
-  const amount = parseFloat(amountStr.replace(",", ".")) || 0
+  // Remove dots (thousands) and replace comma with dot
+  const cleanAmount = amountStr.replace(/\./g, '').replace(',', '.')
+  const amount = parseFloat(cleanAmount) || 0
 
   let description = category
   if (category === 'other' && customCategory) {
